@@ -11,4 +11,5 @@ func SetupRoutes(app *fiber.App) {
 	v1API := app.Group("/api/v1")
 
 	SetupUserRoutes(v1API)
+	SetupAuthRoutes(v1API)
 }

@@ -27,6 +27,8 @@ type Config struct {
 	PostgresMaxOpenConns int
 	PostgresMaxIdleConns int
 	PostgresMaxIdleTime  time.Duration
+
+	JwtSecret string
 }
 
 type confVars struct {
@@ -57,6 +59,8 @@ func New() (*Config, error) {
 	postgresMaxIdleConns := vars.optionalInt("POSTGRES_MAX_IDLE_CONNS", constants.POSTGRES_MAX_IDLE_CONNS)
 	postgresMaxIdleTime := vars.optionalDuration("POSTGRES_MAX_IDLE_TIME", 5*time.Minute)
 
+	jwtSecret := vars.mandatory("JWT_SECRET")
+
 	if err := vars.Error(); err != nil {
 		return nil, fmt.Errorf("error loading configuration: %w", err)
 	}
@@ -78,6 +82,8 @@ func New() (*Config, error) {
 		PostgresMaxOpenConns: postgresMaxOpenConns,
 		PostgresMaxIdleConns: postgresMaxIdleConns,
 		PostgresMaxIdleTime:  postgresMaxIdleTime,
+
+		JwtSecret: jwtSecret,
 	}
 
 	Conf = config
