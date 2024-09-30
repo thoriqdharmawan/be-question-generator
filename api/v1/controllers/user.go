@@ -80,5 +80,12 @@ func GetUserById(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Internal server error")
 	}
 
+	token := c.Get("Authorization")
+	claims, _ := utils.VerifyJWTToken(token)
+
+	if claims.User.Email != user.Email {
+		return utils.ErrorResponse(c, fiber.StatusForbidden, "invalid email token")
+	}
+
 	return utils.SuccessResponse(c, user)
 }

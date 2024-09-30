@@ -2,12 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 	"github.com/thoriqdharmawan/be-question-generator/api/v1/models/entity"
 	"github.com/thoriqdharmawan/be-question-generator/config"
 )
@@ -41,9 +39,15 @@ func GenerateJWTToken(user entity.User) (string, error) {
 	return tokenString, nil
 }
 
-func VerifyJWTToken(tokenString string) (*Claims, error) {
-	godotenv.Load(".env")
-	var jwtSecretKey = []byte(os.Getenv("JWT_SECRET"))
+func VerifyJWTToken(authToken string) (*Claims, error) {
+	tokenString, errGetToken := GetTokenString(authToken)
+
+	if errGetToken != nil {
+		return nil, fmt.Errorf(errGetToken.Error())
+	}
+
+	confVars, _ := config.New()
+	var jwtSecretKey = []byte(confVars.JwtSecret)
 
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -63,22 +67,14 @@ func VerifyJWTToken(tokenString string) (*Claims, error) {
 	return nil, fmt.Errorf("invalid token")
 }
 
-func VerifyJWTTokenHandler(token string) error {
+func GetTokenString(token string) (string, error) {
 	if token == "" {
-		return fmt.Errorf("missing authorization header")
+		return "", fmt.Errorf("missing authorization header")
 	}
 
 	if !strings.HasPrefix(token, "Bearer ") {
-		return fmt.Errorf("invalid authorization header format")
+		return "", fmt.Errorf("invalid authorization header format")
 	}
 
-	tokenString := token[7:]
-
-	_, err := VerifyJWTToken(tokenString)
-
-	if err != nil {
-		return fmt.Errorf("invalid token")
-	}
-
-	return nil
+	return token[7:], nil
 }
