@@ -29,6 +29,12 @@ type Config struct {
 	PostgresMaxIdleTime  time.Duration
 
 	JwtSecret string
+
+	SmtpEmail      string
+	SmtpPassword   string
+	SmtpHost       string
+	SmtpPort       string
+	SmtpSenderName string
 }
 
 type confVars struct {
@@ -61,6 +67,12 @@ func New() (*Config, error) {
 
 	jwtSecret := vars.mandatory("JWT_SECRET")
 
+	smtpEmail := vars.mandatory("SMTP_EMAIL")
+	smtpPassword := vars.mandatory("SMTP_PASSWORD")
+	smtpHost := vars.mandatory("SMTP_HOST")
+	smtpPort := vars.mandatory("SMTP_PORT")
+	smtpSenderName := vars.mandatory("EMAIL_SENDER_NAME")
+
 	if err := vars.Error(); err != nil {
 		return nil, fmt.Errorf("error loading configuration: %w", err)
 	}
@@ -84,6 +96,12 @@ func New() (*Config, error) {
 		PostgresMaxIdleTime:  postgresMaxIdleTime,
 
 		JwtSecret: jwtSecret,
+
+		SmtpEmail:      smtpEmail,
+		SmtpPassword:   smtpPassword,
+		SmtpHost:       smtpHost,
+		SmtpPort:       smtpPort,
+		SmtpSenderName: smtpSenderName,
 	}
 
 	Conf = config
@@ -173,39 +191,39 @@ func (vars *confVars) mandatoryInt(key string) int {
 	return valueInt
 }
 
-func (vars *confVars) mandatoryDuration(key string) time.Duration {
-	value := os.Getenv(key)
-	if value == "" {
-		vars.missing = append(vars.missing, key)
-		return 0
-	}
+// func (vars *confVars) mandatoryDuration(key string) time.Duration {
+// 	value := os.Getenv(key)
+// 	if value == "" {
+// 		vars.missing = append(vars.missing, key)
+// 		return 0
+// 	}
 
-	valueDuration, err := time.ParseDuration(value)
+// 	valueDuration, err := time.ParseDuration(value)
 
-	if err != nil {
-		vars.malformed = append(vars.malformed, key)
-		return 0
-	}
+// 	if err != nil {
+// 		vars.malformed = append(vars.malformed, key)
+// 		return 0
+// 	}
 
-	return valueDuration
-}
+// 	return valueDuration
+// }
 
-func (vars *confVars) mandatoryBool(key string) bool {
-	value := os.Getenv(key)
-	if value == "" {
-		vars.missing = append(vars.missing, key)
-		return false
-	}
+// func (vars *confVars) mandatoryBool(key string) bool {
+// 	value := os.Getenv(key)
+// 	if value == "" {
+// 		vars.missing = append(vars.missing, key)
+// 		return false
+// 	}
 
-	valueBool, err := strconv.ParseBool(value)
+// 	valueBool, err := strconv.ParseBool(value)
 
-	if err != nil {
-		vars.malformed = append(vars.malformed, key)
-		return false
-	}
+// 	if err != nil {
+// 		vars.malformed = append(vars.malformed, key)
+// 		return false
+// 	}
 
-	return valueBool
-}
+// 	return valueBool
+// }
 
 func (vars confVars) Error() error {
 	if len(vars.missing) > 0 {
