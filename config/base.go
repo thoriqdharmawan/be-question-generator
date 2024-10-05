@@ -133,22 +133,6 @@ func (vars *confVars) optionalInt(key string, fallback int) int {
 	return valueInt
 }
 
-func (vars *confVars) optionalBool(key string, fallback bool) bool {
-	value := os.Getenv(key)
-	if value == "" {
-		return fallback
-	}
-
-	valueBool, err := strconv.ParseBool(value)
-
-	if err != nil {
-		vars.malformed = append(vars.malformed, key)
-		return fallback
-	}
-
-	return valueBool
-}
-
 func (vars *confVars) optionalDuration(key string, fallback time.Duration) time.Duration {
 	value := os.Getenv(key)
 
@@ -190,40 +174,6 @@ func (vars *confVars) mandatoryInt(key string) int {
 
 	return valueInt
 }
-
-// func (vars *confVars) mandatoryDuration(key string) time.Duration {
-// 	value := os.Getenv(key)
-// 	if value == "" {
-// 		vars.missing = append(vars.missing, key)
-// 		return 0
-// 	}
-
-// 	valueDuration, err := time.ParseDuration(value)
-
-// 	if err != nil {
-// 		vars.malformed = append(vars.malformed, key)
-// 		return 0
-// 	}
-
-// 	return valueDuration
-// }
-
-// func (vars *confVars) mandatoryBool(key string) bool {
-// 	value := os.Getenv(key)
-// 	if value == "" {
-// 		vars.missing = append(vars.missing, key)
-// 		return false
-// 	}
-
-// 	valueBool, err := strconv.ParseBool(value)
-
-// 	if err != nil {
-// 		vars.malformed = append(vars.malformed, key)
-// 		return false
-// 	}
-
-// 	return valueBool
-// }
 
 func (vars confVars) Error() error {
 	if len(vars.missing) > 0 {
