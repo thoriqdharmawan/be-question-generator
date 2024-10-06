@@ -6,5 +6,6 @@ import (
 )
 
 func SetupVerificationTokenRoutes(router fiber.Router) {
+	router.Post("/verification-email/verify/:token", controllers.VerifyEmailToken)
 	router.Post("/verification-email/resend", controllers.ResendVerificationToken)
 }
