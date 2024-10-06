@@ -6,5 +6,7 @@ import (
 )
 
 func SetupAuthRoutes(router fiber.Router) {
-	router.Post("/login", controllers.Login)
+	router.Post("/auth/login", controllers.Login)
+	router.Post("/auth/request-reset-password", controllers.RequestResetPassword)
+	router.Post("/auth/reset-password", controllers.ResetPassword)
 }
