@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/thoriqdharmawan/be-question-generator/api/v1/models/entity"
@@ -38,7 +40,6 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	validate := validator.New()
-
 	if err := validate.Struct(user); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
@@ -49,7 +50,6 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	hashedPassword, err := utils.HashPassword(user.Password)
-
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
@@ -64,6 +64,23 @@ func CreateUser(c *fiber.Ctx) error {
 	if err := db.Postgre.Create(&newUser).Error; err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Internal server error")
 	}
+
+	verificationToken := utils.GenerateVerificationToken()
+	expiresAt := time.Now().Add(15 * time.Minute)
+
+	newToken := entity.VerificationToken{
+		UserID:    newUser.ID,
+		Token:     verificationToken,
+		CreatedAt: time.Now(),
+		ExpiresAt: expiresAt,
+		IsUsed:    false,
+	}
+
+	if err := db.Postgre.Create(&newToken).Error; err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create verification token")
+	}
+
+	utils.SendEmail([]string{newUser.Email}, "Verification Token for account creation", "Token : "+newToken.Token)
 
 	return utils.SuccessResponse(c, newUser)
 }

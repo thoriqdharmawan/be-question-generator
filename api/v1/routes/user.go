@@ -10,4 +10,5 @@ func SetupUserRoutes(router fiber.Router) {
 	router.Get("/user", controllers.GetUsers)
 	router.Post("/user", controllers.CreateUser)
 	router.Get("/user/:id", middlewares.Auth, controllers.GetUserById)
+	router.Post("/user/verify-email/:token", controllers.VerifyEmailToken)
 }

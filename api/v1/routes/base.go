@@ -12,4 +12,5 @@ func SetupRoutes(app *fiber.App) {
 
 	SetupUserRoutes(v1API)
 	SetupAuthRoutes(v1API)
+	SetupVerificationTokenRoutes(v1API)
 }

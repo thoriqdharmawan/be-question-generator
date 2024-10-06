@@ -36,7 +36,7 @@ func Init() error {
 		return fmt.Errorf("error opening database connection: %w", err)
 	}
 
-	db.AutoMigrate(&entity.User{})
+	db.AutoMigrate(&entity.User{}, &entity.VerificationToken{})
 
 	fmt.Println("Databse Migrated")
 
